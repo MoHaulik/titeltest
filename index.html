@@ -1,74 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Text Scramble Effect</title>
-  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:100" rel="stylesheet">
-  <style>
-    body {
-      margin: 0; display: flex; justify-content: center; align-items: center;
-      height: 100vh; background: #000000; color: #FFFFFF;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-    }
-    .dud { color: #FFFFFF; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Welcome to NXT/WebXR</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .scramble-text {
+            font-size: 32px;
+            margin: 0;
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+        .dud {
+            color: #757575;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
-  <div class="text"></div>
-  <script>
-    const el = document.querySelector('.text'),
-          chars = '!<>-_\\/[]{}—=+*^?#________',
-          phrases = ['Welcome!', 'Welcome to NXT/WebXR!', 'NXT/WebXR'];
-    let frame = 0, queue = [], counter = 0;
-
-    function setText(newText) {
-      const oldText = el.innerText, length = Math.max(oldText.length, newText.length);
-      queue = [];
-      for (let i = 0; i < length; i++) {
-        queue.push({
-          from: oldText[i] || '',
-          to: newText[i] || '',
-          start: Math.random() * 40 | 0, // Increased random range for slower start
-          end: (Math.random() * 40 | 0) + 40, // Increased duration for slower end
-          char: ''
-        });
-      }
-      frame = 0;
-      update();
-    }
-
-    function update() {
-      let output = '', complete = 0;
-      for (let i = 0; i < queue.length; i++) {
-        let { from, to, start, end, char } = queue[i];
-        if (frame >= end) {
-          complete++;
-          output += to;
-        } else if (frame >= start) {
-          if (Math.random() < 0.28) {
-            char = chars[Math.random() * chars.length | 0];
-            queue[i].char = char;
-          }
-          output += '<span class="dud">' + (char || '') + '</span>';
-        } else {
-          output += from;
+    <h1 class="scramble-text"></h1>
+    <script>
+        class TextScramble {
+            constructor(el) {
+                this.el = el;
+                this.chars = '!<>-_\\/[]{}—=+*^?#________';
+                this.update = this.update.bind(this);
+            }
+            setText(newText) {
+                const oldText = this.el.innerText;
+                const length = Math.max(oldText.length, newText.length);
+                const promise = new Promise((resolve) => this.resolve = resolve);
+                this.queue = [];
+                for (let i = 0; i < length; i++) {
+                    const from = oldText[i] || '';
+                    const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * 40);
+                    const end = start + Math.floor(Math.random() * 40);
+                    this.queue.push({ from, to, start, end, char: '' });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+                return promise;
+            }
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span class="dud">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                this.el.innerHTML = output;
+                if (complete === this.queue.length) {
+                    this.resolve();
+                } else {
+                    this.frame++;
+                    this.frameRequest = requestAnimationFrame(this.update);
+                }
+            }
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
         }
-      }
-      el.innerHTML = output;
-      if (complete === queue.length) {
-        setTimeout(next, 1600); // Increased timeout for slower transition
-      } else {
-        frame++;
-        requestAnimationFrame(update);
-      }
-    }
 
-    function next() {
-      setText(phrases[counter % phrases.length]);
-      counter++;
-    }
+        document.addEventListener('DOMContentLoaded', () => {
+            const el = document.querySelector('.scramble-text');
+            const fx = new TextScramble(el);
+            const phrase = 'Welcome to NXT/WebXR';
 
-    next();
-  </script>
+            fx.setText(phrase);
+        });
+    </script>
 </body>
 </html>
