@@ -7,9 +7,10 @@
   <style>
     body {
       margin: 0; display: flex; justify-content: center; align-items: center;
-      height: 100vh; background: #212121; color: #FAFAFA; font-family: 'Roboto Mono', monospace;
+      height: 100vh; background: #000000; color: #FFFFFF;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
     }
-    .dud { color: #757575; }
+    .dud { color: #FFFFFF; }
   </style>
 </head>
 <body>
@@ -17,7 +18,7 @@
   <script>
     const el = document.querySelector('.text'),
           chars = '!<>-_\\/[]{}—=+*^?#________',
-          phrases = ['Hello, World!', 'Welcome!', 'Welcome to NXT/', 'Welcome to NXT/WebXR', 'NXT/WebXR ⇨ ⇨ ⇨ '];
+          phrases = ['Welcome!', 'Welcome to NXT/WebXR!', 'NXT/WebXR'];
     let frame = 0, queue = [], counter = 0;
 
     function setText(newText) {
@@ -27,8 +28,8 @@
         queue.push({
           from: oldText[i] || '',
           to: newText[i] || '',
-          start: Math.random() * 20 | 0,
-          end: (Math.random() * 20 | 0) + 20,
+          start: Math.random() * 40 | 0, // Increased random range for slower start
+          end: (Math.random() * 40 | 0) + 40, // Increased duration for slower end
           char: ''
         });
       }
@@ -55,7 +56,7 @@
       }
       el.innerHTML = output;
       if (complete === queue.length) {
-        setTimeout(next, 800);
+        setTimeout(next, 1600); // Increased timeout for slower transition
       } else {
         frame++;
         requestAnimationFrame(update);
