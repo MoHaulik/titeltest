@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Text Scramble Effect</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:100" rel="stylesheet">
+  <style>
+    body {
+      margin: 0; display: flex; justify-content: center; align-items: center;
+      height: 100vh; background: #212121; color: #FAFAFA; font-family: 'Roboto Mono', monospace;
+    }
+    .dud { color: #757575; }
+  </style>
+</head>
+<body>
+  <div class="text"></div>
+  <script>
+    const el = document.querySelector('.text'),
+          chars = '!<>-_\\/[]{}—=+*^?#________',
+          phrases = ['Hello, World!', 'Welcome!', 'Enjoy!', 'Scramble Text', 'GitHub Pages'];
+    let frame = 0, queue = [], counter = 0;
+
+    function setText(newText) {
+      const oldText = el.innerText, length = Math.max(oldText.length, newText.length);
+      queue = [];
+      for (let i = 0; i < length; i++) {
+        queue.push({
+          from: oldText[i] || '',
+          to: newText[i] || '',
+          start: Math.random() * 20 | 0,
+          end: (Math.random() * 20 | 0) + 20,
+          char: ''
+        });
+      }
+      frame = 0;
+      update();
+    }
+
+    function update() {
+      let output = '', complete = 0;
+      for (let i = 0; i < queue.length; i++) {
+        let { from, to, start, end, char } = queue[i];
+        if (frame >= end) {
+          complete++;
+          output += to;
+        } else if (frame >= start) {
+          if (Math.random() < 0.28) {
+            char = chars[Math.random() * chars.length | 0];
+            queue[i].char = char;
+          }
+          output += '<span class="dud">' + (char || '') + '</span>';
+        } else {
+          output += from;
+        }
+      }
+      el.innerHTML = output;
+      if (complete === queue.length) {
+        setTimeout(next, 800);
+      } else {
+        frame++;
+        requestAnimationFrame(update);
+      }
+    }
+
+    function next() {
+      setText(phrases[counter % phrases.length]);
+      counter++;
+    }
+
+    next();
+  </script>
+</body>
+</html>
